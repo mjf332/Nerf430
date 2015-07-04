@@ -1,0 +1,73 @@
+#Code for controlling a Nerf gun 
+#The left arrow key will turn the gun left, the
+#right arrow key turns the gun right, while the
+#space bar will fire a shot
+
+#Code used from/inspired by the internet
+#Tkinter code/key function:
+#Serial transmit code:
+
+import Tkinter as tk
+import serial
+
+commPort = 9
+turnRight = b'r'
+turnLeft = b'l'
+shootTarget = b'f'
+stopMoving = b's'
+
+ser= None
+
+def key(event):
+
+    if event.keysym == 'Escape':
+        root.destroy()
+    if event.keysym == 'space':
+        print "Hit Space"
+        transmitOverRadio(shootTarget) #transmit fire command
+    elif event.keysym == 'Right':
+        print "Hit Right"
+        transmitOverRadio(turnRight) #transmit right turn command
+    elif event.keysym == 'Left':
+        print "Hit Left"
+        transmitOverRadio(turnLeft) #transmit left turn command
+    else:
+        print "transmitting none"
+        transmitOverRadio(stopMoving)
+
+def keyReleased(event):
+    print "Key Released"
+    transmitOverRadio(stopMoving)
+
+def connectMSP430():
+    print("Connecting...")
+    ser = serial.Serial(commPort, 9600, timeout=1) #The integer 2 corresponds to COM[3]
+    print("Connected!")
+    
+def transmitOverRadio(message):
+    ser = serial.Serial(commPort, 9600, timeout=1)
+    try:
+        print"In try"
+        ser.write(message)
+    except:
+        print "In exception"
+        pass
+
+
+
+if __name__ == '__main__':
+    connectMSP430()
+    root = tk.Tk()
+    print"root seems to be working"
+    print( "Press a key (Escape key to exit):" )
+    root.bind_all('<Key>', key)
+    root.bind_all('<KeyRelease>', keyReleased)
+    print "Helloooooooooo"
+    # don't show the tk window
+    #root.withdraw()
+    root.mainloop()
+
+#Sending one byte
+#1st bit left
+#2nd bit right
+#3rd bit fire
